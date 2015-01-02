@@ -3,7 +3,7 @@ try {
 	var fs=require("fs");
 	var Buffer=require("buffer").Buffer;
 } catch (e) {
-	var fs=require('./html5fs');
+	var fs=require('./html5read');
 	var Buffer=function(){ return ""};
 	var html5fs=true; 	
 }
