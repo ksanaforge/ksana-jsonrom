@@ -1,0 +1,23 @@
+<xml>
+this is _ page
+<pb n="1">
+<h1>head one</h1>
+page one
+second line of page one
+<pb n="2">
+page two
+<pb n="3">
+<h2>head two of head one</h2>
+page three
+<pb n="4">
+page four
+<pb n="5">
+<h2>head three of head one</h2>
+page five
+<pb n="6">
+page six
+<pb n="7">
+<h1>head two</h1>
+page seven
+
+</xml>
