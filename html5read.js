@@ -27,12 +27,13 @@ var _open=function(fn_url,cb) {
 		if (fn_url.indexOf("filesystem:")==0){
 			handle.url=fn_url;
 			handle.fn=fn_url.substr( fn_url.lastIndexOf("/")+1);
+			cb(handle);
 		} else {
 			handle.fn=fn_url;
 			var url=API.files.filter(function(f){ return (f[0]==fn_url)});
 			if (url.length) handle.url=url[0][1];
+			else cb(null);
 		}
-		cb(handle);
 }
 var open=function(fn_url,cb) {
 		if (!API.initialized) {init(1024*1024,function(){
@@ -80,7 +81,8 @@ var init=function(quota,cb,context) {
 	);
 }
 var API={
-	,read:read
+	read:read
+	,readdir:readdir
 	,open:open
 	,close:close
 	,fstatSync:fstatSync

@@ -286,10 +286,14 @@ var Open=function(path,opts,cb) {
 	var that=this;
 	if (html5fs) {
 		fs.open(path,function(h){
-			that.handle=h;
-			that.html5fs=true;
-			setupapi.call(that);
-			that.opened=true;
+			if (!h) {
+				if (cb)	setTimeout(cb.bind(null,"file not found:"+path),0);	
+			} else {
+				that.handle=h;
+				that.html5fs=true;
+				setupapi.call(that);
+				that.opened=true;				
+			}
 		})
 	} else {
 		if (fs.existsSync(path)){
