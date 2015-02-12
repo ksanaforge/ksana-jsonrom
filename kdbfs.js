@@ -16,16 +16,22 @@ if (verbose) readLog=_readLog;
 
 var unpack_int = function (ar, count , reset) {
    count=count||ar.length;
-  var r = [], i = 0, v = 0;
+  var r = []
+  //var r=new Uint32Array(count);
+  var i = 0, v = 0,n=0;
   do {
 	var shift = 0;
 	do {
 	  v += ((ar[i] & 0x7F) << shift);
 	  shift += 7;	  
 	} while (ar[++i] & 0x80);
-	r.push(v); if (reset) v=0;
+	r.push(v);
+	//r[n++]=v;
+	if (reset) v=0;
 	count--;
   } while (i<ar.length && count);
+
+  //var rr=r.subarray(0,n);
   return {data:r, adv:i };
 }
 var Open=function(path,opts,cb) {

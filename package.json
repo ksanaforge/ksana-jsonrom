@@ -3,11 +3,7 @@
   "version": "1.0.0",
   "description": "romable json file format",
   "scripts": {
-    "test": "node test/test.js",
-    "watch":"watchify -t reactify index.js  -o bundle.js -dv --bare",
-    "build":"browserify -t reactify index.js -o bundle.js -dv --bare ",
-    "start": "npm run nw && npm run watch",
-    "nw":"start node ..\\nodewebkit\\bin\\nodewebkit . --remote-debugging-port=9222 --url=file:///index.html"
+    "test": "node test/test.js"
   },
   "inject-js-start": "nwmain.js",
   "repository": {

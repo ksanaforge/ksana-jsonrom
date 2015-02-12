@@ -125,11 +125,12 @@ var Create=function(path,opts,cb) {
 
 				if (opts.lazy) { 
 						var offset=L.offset;
-						L.sz.map(function(sz){
+						for (var i=0;i<L.sz.length;i++) {
+							var sz=L.sz[i];
 							o[o.length]=strsep+offset.toString(16)
 								   +strsep+sz.toString(16);
 							offset+=sz;
-						})
+						};
 				} else {
 					var taskqueue=[];
 					for (var i=0;i<L.count;i++) {
@@ -349,14 +350,16 @@ var Create=function(path,opts,cb) {
 		}
 		return o;
 	}
-	var get=function(path,opts,cb) {
+	var get=function(path,opts,cb,context) {
 		if (typeof path=='undefined') path=[];
 		if (typeof path=="string") path=[path];
 		//opts.recursive=!!opts.recursive;
 		if (typeof opts=="function") {
-			cb=opts;node
+			context=cb;
+			cb=opts;
 			opts={};
 		}
+		var context=context||this;
 		var that=this;
 		if (typeof cb!='function') return getSync(path);
 
@@ -364,9 +367,9 @@ var Create=function(path,opts,cb) {
 			var o=CACHE;
 			if (path.length==0) {
 				if (opts.address) {
-					cb([0,that.fs.size]);
+					cb.apply(context,[[0,that.fs.size]]);
 				} else {
-					cb(Object.keys(CACHE));	
+					cb.apply(context,[Object.keys(CACHE)]);
 				}
 				return;
 			} 
@@ -391,7 +394,7 @@ var Create=function(path,opts,cb) {
 
 						if (typeof r==="undefined") {
 							taskqueue=null;
-							cb.apply(that,[r]); //return empty value
+							cb.apply(context,[r]); //return empty value
 						} else {							
 							if (parseInt(k)) pathnow+=strsep;
 							pathnow+=key;
@@ -423,16 +426,16 @@ var Create=function(path,opts,cb) {
 			}
 
 			if (taskqueue.length==0) {
-				cb.apply(that,[o]);
+				cb.apply(context,[o]);
 			} else {
 				//last call to child load
 				taskqueue.push(function(data,cursz){
 					if (opts.address) {
-						cb.apply(that,[cursz]);
+						cb.apply(context,[cursz]);
 					} else{
 						var key=path[path.length-1];
 						o[key]=data; KEY[pathnow]=opts.keys;
-						cb.apply(that,[data]);
+						cb.apply(context,[data]);
 					}
 				});
 				taskqueue.shift()({__empty:true});			
@@ -444,6 +447,7 @@ var Create=function(path,opts,cb) {
 	var getkeys=function(path,cb) {
 		if (!path) path=[]
 		var that=this;
+
 		get.apply(this,[path,false,function(){
 			if (path && path.length) {
 				cb.apply(that,[KEY[path.join(strsep)]]);
