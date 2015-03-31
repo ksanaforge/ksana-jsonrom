@@ -76,8 +76,8 @@ var readStringArray = function(pos,blocksize,encoding,cb) {
 }
 var mergePostings=function(positions,cb) {
 	var buf=kfs.mergePostings(this.handle,JSON.stringify(positions));
-	if (!buf || buf.length==0) return [];
-	else return JSON.parse(buf);
+	if (!buf || buf.length==0) return cb([]);
+	else return cb(JSON.parse(buf));
 }
 
 var free=function() {

@@ -272,6 +272,7 @@ var Open=function(path,opts,cb) {
 		this.readStringArray=readStringArray;
 		this.signature_size=signature_size;
 		this.free=free;
+
 		if (html5fs) {
 			var fn=path;
 			if (path.indexOf("filesystem:")==0) fn=path.substr(path.lastIndexOf("/"));

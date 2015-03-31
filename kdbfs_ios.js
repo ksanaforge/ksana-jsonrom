@@ -157,12 +157,22 @@ var readStringArray = function(pos,blocksize,encoding,cb) {
 	}
 }
 
-var mergePostings=function(positions) {
-	var buf=kfs.mergePostings(this.handle,positions);
-	if (typeof buf=="string") {
-		buf=eval("["+buf.substr(0,buf.length-1)+"]");
-	}
-	return buf;
+var mergePostings=function(positions,cb) {
+	if (kfs.async) {
+		kfs.mergePostings(this.handle,positions,function(buf){
+			if (typeof buf=="string") {
+				buf=eval("["+buf.substr(0,buf.length-1)+"]");
+			}
+			cb(buf);
+		});
+	} else {
+		var buf=kfs.mergePostings(this.handle,positions,cb);
+		if (typeof buf=="string") {
+			buf=eval("["+buf.substr(0,buf.length-1)+"]");
+		}
+		cb(buf);
+	}		
+	
 }
 var free=function() {
 	////if (verbose)  ksanagap.log('closing ',handle);
@@ -185,15 +195,15 @@ var Open=function(path,opts,cb) {
 		this.mergePostings=mergePostings;
 		this.free=free;
 		if (kfs.getFileSize.length==1) {
-			this.size=kfs.getFileSize(this.handle);	
+			this.size=kfs.getFileSize(this.handle);
+			if (cb)	cb.call(this);	
 		} else {
 			var that=this;
 			kfs.getFileSize(this.handle,function(size){
 				that.size=size;
+				if (cb)	cb.call(that);
 			});
-		}
-		
-		if (cb)	cb.call(this);
+		}		
 	}
 
 	if (kfs.open.length==1) {
@@ -203,6 +213,7 @@ var Open=function(path,opts,cb) {
 		return this;		
 	} else { //react-native
 		var that=this;
+		this.async=true;
 		kfs.open(path,function(handle){
 			that.opened=true;
 			that.handle=handle;
