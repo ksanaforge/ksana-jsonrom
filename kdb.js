@@ -14,7 +14,12 @@
 var Kfs=null;
 
 if (typeof ksanagap=="undefined") {
-	Kfs=require('./kdbfs');			
+	try {
+		require("react-native");
+		Kfs=require("./kdbfs_ios");
+	} catch(e) {
+		Kfs=require('./kdbfs');	
+	}			
 } else {
 	if (ksanagap.platform=="ios") {
 		Kfs=require("./kdbfs_ios");
