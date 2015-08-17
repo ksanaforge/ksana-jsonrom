@@ -1,6 +1,14 @@
 
 /* emulate filesystem on html5 browser */
 /* emulate filesystem on html5 browser */
+
+var getFileSize=function(fn,cb) {
+	var reader = new FileReader();
+	reader.onload = function(){
+		cb(reader.result.length);
+	};
+	reader.readAsDataURL(fn);
+}
 var read=function(handle,buffer,offset,length,position,cb) {//buffer and offset is not used
 	var xhr = new XMLHttpRequest();
 	xhr.open('GET', handle.url , true);
@@ -22,6 +30,13 @@ var fstatSync=function(handle) {
 var fstat=function(handle,cb) {
 	throw "not implement yet";
 }
+var _openLocal=function(file,cb) {
+	var handle={};
+	handle.url=URL.createObjectURL(file);
+	handle.fn=file.name.substr(file.name.indexOf("#")+1);
+	handle.file=file;
+	cb(handle);
+}
 var _open=function(fn_url,cb) {
 		var handle={};
 		if (fn_url.indexOf("filesystem:")==0){
@@ -36,9 +51,14 @@ var _open=function(fn_url,cb) {
 		cb(handle);
 }
 var open=function(fn_url,cb) {
-		if (!API.initialized) {init(1024*1024,function(){
-			_open.apply(this,[fn_url,cb]);
-		},this)} else _open.apply(this,[fn_url,cb]);
+	if (typeof File !=="undefined" && fn_url.constructor ===File) {
+		_openLocal.call(this,fn_url,cb);
+		return;
+	}
+
+	if (!API.initialized) {init(1024*1024,function(){
+		_open.apply(this,[fn_url,cb]);
+	},this)} else _open.apply(this,[fn_url,cb]);
 }
 var load=function(filename,mode,cb) {
 	open(filename,mode,cb,true);
@@ -80,6 +100,8 @@ var init=function(quota,cb,context) {
 		}, errorHandler 
 	);
 }
+
+
 var API={
 	read:read
 	,readdir:readdir
@@ -87,5 +109,6 @@ var API={
 	,close:close
 	,fstatSync:fstatSync
 	,fstat:fstat
+	,getFileSize:getFileSize
 }
 module.exports=API;

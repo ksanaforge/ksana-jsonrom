@@ -100,7 +100,7 @@ var Open=function(path,opts,cb) {
 		});
 	}
 
-	//work around for chrome fromCharCode cannot accept huge array
+	//work around for chrome fromCharCode cannot accept huge zarray
 	//https://code.google.com/p/chromium/issues/detail?id=56588
 	var buf2stringarr=function(buf,enc) {
 		if (enc=="utf8") 	var arr=new Uint8Array(buf);
@@ -125,6 +125,7 @@ var Open=function(path,opts,cb) {
 		return out;
 	}
 	var readStringArray = function(pos,blocksize,encoding,cb) {
+		//console.log("blocksize of string array",blocksize);
 		var that=this,out=null;
 		if (blocksize==0) return [];
 		encoding=encoding||'utf8';
@@ -275,13 +276,22 @@ var Open=function(path,opts,cb) {
 
 		if (html5fs) {
 			var fn=path;
-			if (path.indexOf("filesystem:")==0) fn=path.substr(path.lastIndexOf("/"));
-			fs.fs.root.getFile(fn,{},function(entry){
-			  entry.getMetadata(function(metadata) { 
-				that.size=metadata.size;
-				if (cb) setTimeout(cb.bind(that),0);
-				});
-			});
+			if (this.handle.file) {
+				//local file
+				fs.getFileSize(this.handle.file,function(size){
+					that.size=size;
+					if (cb) setTimeout(cb.bind(that),0);
+				})
+			} else if (fs&& fs.fs && fs.fs.root) {
+				if (path.indexOf("filesystem:")==0) fn=path.substr(path.lastIndexOf("/"));
+				//Google File system
+				fs.fs.root.getFile(fn,{},function(entry){
+				  entry.getMetadata(function(metadata) { 
+					that.size=metadata.size;
+					if (cb) setTimeout(cb.bind(that),0);
+					});
+				});				
+			}
 		} else {
 			var stat=fs.fstatSync(this.handle);
 			this.stat=stat;
