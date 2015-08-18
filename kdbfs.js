@@ -53,6 +53,7 @@ var Open=function(path,opts,cb) {
 	//if the string is always ucs2
 	//can use Uint16 to read it.
 	//http://updates.html5rocks.com/2012/06/How-to-convert-ArrayBuffer-to-and-from-String
+
 	var decodeutf8 = function (utftext) {
 		var string = "";
 		var i = 0;
@@ -81,6 +82,14 @@ var Open=function(path,opts,cb) {
 		return string;
 	}
 
+	var decodeule16buffer=function(buf) {
+		if (typeof TextDecoder!=="undefined") {
+			var decoder=new TextDecoder("utf-16le");
+			return decoder.decode(buf)
+		} else {
+			return String.fromCharCode.apply(null, new Uint16Array(buffer));
+		}
+	}
 	var readString= function(pos,blocksize,encoding,cb) {
 		encoding=encoding||'utf8';
 		var buffer=new Buffer(blocksize);
@@ -91,9 +100,8 @@ var Open=function(path,opts,cb) {
 				if (encoding=='utf8') {
 					var str=decodeutf8(String.fromCharCode.apply(null, new Uint8Array(buffer)))
 				} else { //ucs2 is 3 times faster
-					var str=String.fromCharCode.apply(null, new Uint16Array(buffer))	
+					var str=decodeule16buffer(buffer);
 				}
-				
 				cb.apply(that,[str]);
 			} 
 			else cb.apply(that,[buffer.toString(encoding)]);	
@@ -103,33 +111,41 @@ var Open=function(path,opts,cb) {
 	//work around for chrome fromCharCode cannot accept huge zarray
 	//https://code.google.com/p/chromium/issues/detail?id=56588
 	var buf2stringarr=function(buf,enc) {
-		if (enc=="utf8") 	var arr=new Uint8Array(buf);
-		else var arr=new Uint16Array(buf);
-		var i=0,codes=[],out=[],s="";
-		while (i<arr.length) {
-			if (arr[i]) {
-				codes[codes.length]=arr[i];
-			} else {
-				s=String.fromCharCode.apply(null,codes);
-				if (enc=="utf8") out[out.length]=decodeutf8(s);
-				else out[out.length]=s;
-				codes=[];				
+		if (typeof TextDecoder!=="undefined") {
+			//TextDecoder is two times faster
+			if (enc==="ucs2") enc="utf-16le";
+			var decoder=new TextDecoder(enc);
+			return decoder.decode(buf).split("\0");
+		} else{
+			if (enc=="utf8") 	var arr=new Uint8Array(buf);
+			else var arr=new Uint16Array(buf);
+			var i=0,codes=[],out=[],s="";
+			while (i<arr.length) {
+				if (arr[i]) {
+					codes[codes.length]=arr[i];
+				} else {
+					s=String.fromCharCode.apply(null,codes);
+					if (enc=="utf8") out[out.length]=decodeutf8(s);
+					else out[out.length]=s;
+					codes=[];				
+				}
+				i++;
 			}
-			i++;
-		}
-		
-		s=String.fromCharCode.apply(null,codes);
-		if (enc=="utf8") out[out.length]=decodeutf8(s);
-		else out[out.length]=s;
+			
+			s=String.fromCharCode.apply(null,codes);
+			if (enc=="utf8") out[out.length]=decodeutf8(s);
+			else out[out.length]=s;
 
-		return out;
+			return out;			
+		}
 	}
 	var readStringArray = function(pos,blocksize,encoding,cb) {
-		//console.log("blocksize of string array",blocksize);
 		var that=this,out=null;
 		if (blocksize==0) return [];
 		encoding=encoding||'utf8';
 		var buffer=new Buffer(blocksize);
+
+		//if (blocksize>1000000) console.time("readstringarray");
 		fs.read(this.handle,buffer,0,blocksize,pos,function(err,len,buffer){
 			if (html5fs) {
 				readLog("stringArray",buffer.byteLength);
@@ -142,7 +158,8 @@ var Open=function(path,opts,cb) {
 			} else {
 				readLog("stringArray",buffer.length);
 				out=buffer.toString(encoding).split('\0');
-			} 	
+			}
+			//if (blocksize>1000000) console.timeEnd("readstringarray");
 			cb.apply(that,[out]);
 		});
 	}
