@@ -16,10 +16,11 @@ var Kfs=null;
 if (typeof ksanagap=="undefined") {
 	try {
 		var react_native=require("react-native");
-		try {
+		var OS=react_native.Platform.OS;
+		if (OS=='android') {
 			require("react-native-android-kdb");
 			Kfs=require("./kdbfs_rn_android");
-		} catch (e) {
+		} else {
 			Kfs=require("./kdbfs_ios");
 		}
 	} catch(e) {
