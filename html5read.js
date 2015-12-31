@@ -56,7 +56,11 @@ var open=function(fn_url,cb) {
 		return;
 	}
 
-	if (!API.initialized) {init(1024*1024,function(){
+	if (!API.initialized) {init(1024*1024,function(bytes,fs){
+		if (!fs) {
+			cb(null);//cannot open , htmlfs is not available
+			return;
+		}
 		_open.apply(this,[fn_url,cb]);
 	},this)} else _open.apply(this,[fn_url,cb]);
 }
@@ -94,6 +98,10 @@ var initfs=function(grantedBytes,cb,context) {
 	}, errorHandler);
 }
 var init=function(quota,cb,context) {
+	if (!navigator.webkitPersistentStorage) {
+		cb.apply(context,[0,null]);
+		return;
+	}
 	navigator.webkitPersistentStorage.requestQuota(quota, 
 			function(grantedBytes) {
 				initfs(grantedBytes,cb,context);
