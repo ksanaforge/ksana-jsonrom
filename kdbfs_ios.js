@@ -2,6 +2,7 @@
   JSContext can return all Javascript types.
 */
 var verbose=0,async=!!kfs.async;
+var kfs = require('ksana-react-native-module');
 
 var readSignature=function(pos,cb) {
 	if (verbose)  ksanagap.log("read signature at "+pos);

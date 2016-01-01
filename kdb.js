@@ -18,7 +18,6 @@ if (typeof ksanagap=="undefined") {
 		var react_native=require("react-native");
 		var OS=react_native.Platform.OS;
 		if (OS=='android') {
-			require("react-native-android-kdb");
 			Kfs=require("./kdbfs_rn_android");
 		} else {
 			Kfs=require("./kdbfs_ios");
