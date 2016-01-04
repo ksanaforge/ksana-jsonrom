@@ -1,7 +1,7 @@
 /*
   JSContext can return all Javascript types.
 */
-var kfs = require('ksana-react-native-module');
+var kfs = require('NativeModules').KsanaFileSystem;
 var verbose=0,async=!!kfs.async;
 
 var readSignature=function(pos,cb) {
