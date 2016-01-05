@@ -5,6 +5,8 @@
 */
 var verbose=0;
 
+'use strict';
+
 var readSignature=function(pos,cb) {
 	if (verbose) console.debug("read signature");
 	var signature=kfs.readUTF8String(this.handle,pos,1);
