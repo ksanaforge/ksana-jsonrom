@@ -123,7 +123,7 @@ var Open=function(path,opts,cb) {
 
 	kfs.open(path,function(handle){
 		if (!handle) {
-		cb.call(null,"Unable to kdb:"+path+", found not found in assets nor /sdcard/accelon3");
+		cb.call(null,"File not found:"+path);
 			return;
 		}
 		this.handle=handle;

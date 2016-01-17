@@ -218,7 +218,7 @@ var Open=function(path,opts,cb) {
 		this.async=true;
 		kfs.open(path,function(handle){
 			if (!handle){
-				cb.call(null,"Unable to kdb:"+path+", found not found in bundle nor Document Directory");
+				cb.call(null,"File not file:"+path);
 				return;
 			}
 			that.opened=true;
