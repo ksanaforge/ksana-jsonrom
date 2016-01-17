@@ -96,7 +96,7 @@ var mergePostings=function(positions,cb) {
 
 var free=function() {
 	//console.log('closing ',handle);
-	kfs.close(this.handle);
+	kfs.close(this.handle,function(){});
 }
 var Open=function(path,opts,cb) {
 	opts=opts||{};
