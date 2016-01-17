@@ -217,6 +217,10 @@ var Open=function(path,opts,cb) {
 		var that=this;
 		this.async=true;
 		kfs.open(path,function(handle){
+			if (!handle){
+				cb.call(null,"Unable to kdb:"+path+", found not found in bundle nor Document Directory");
+				return;
+			}
 			that.opened=true;
 			that.handle=handle;
 			setupapi.call(that);

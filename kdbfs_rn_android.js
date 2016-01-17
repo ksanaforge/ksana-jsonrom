@@ -122,6 +122,10 @@ var Open=function(path,opts,cb) {
 	}
 
 	kfs.open(path,function(handle){
+		if (!handle) {
+		cb.call(null,"Unable to kdb:"+path+", found not found in assets nor /sdcard/accelon3");
+			return;
+		}
 		this.handle=handle;
 		this.opened=true;
 		setupapi.call(this);

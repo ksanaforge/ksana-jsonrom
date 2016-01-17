@@ -58,7 +58,7 @@ var DT={
 	//ydb start with object signature,
 	//type a ydb in command prompt shows nothing
 }
-var verbose=0, readLog=function(){};
+var verbose=0, read32=function(){};
 var _readLog=function(readtype,bytes) {
 	console.log(readtype,bytes,"bytes");
 }
