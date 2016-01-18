@@ -318,10 +318,11 @@ var Open=function(path,opts,cb) {
 	}
 
 	var that=this;
-	if (html5fs) {
+	if (html5fs && opts.webStorage) {
 		fs.open(path,function(h){
 			if (!h) {
-				if (cb)	setTimeout(cb.bind(null,"file not found:"+path),0);	
+				cb("file not found:"+path);	
+				return;
 			} else {
 				that.handle=h;
 				that.html5fs=true;
@@ -330,12 +331,12 @@ var Open=function(path,opts,cb) {
 			}
 		})
 	} else {
-		if (fs.existsSync(path)){
+		if (fs.existsSync && fs.existsSync(path)){
 			this.handle=fs.openSync(path,'r');//,function(err,handle){
 			this.opened=true;
 			setupapi.call(this);
 		} else {
-			if (cb)	setTimeout(cb.bind(null,"file not found:"+path),0);	
+			cb("file not found:"+path);	
 			return null;
 		}
 	}
