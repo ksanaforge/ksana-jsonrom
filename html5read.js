@@ -9,20 +9,20 @@ var getFileSize=function(fn,cb) {
 	};
 	reader.readAsDataURL(fn);
 }
-var read=function(handle,buffer,offset,length,position,cb) {//buffer and offset is not used
-	var xhr = new XMLHttpRequest();
-	xhr.open('GET', handle.url , true);
-	var range=[position,length+position-1];
-	xhr.setRequestHeader('Range', 'bytes='+range[0]+'-'+range[1]);
-	xhr.responseType = 'arraybuffer';
-	xhr.send();
-	xhr.onload = function(e) {
-		var that=this;
-		setTimeout(function(){
-			cb(0,that.response.byteLength,that.response);
-		},0);
-	}; 
+var xhr_getFileSize=function(url,cb){
+    var http = new XMLHttpRequest();
+    http.open('HEAD', url+"?"+(new Date().getTime()) ,true);
+    http.onload=function(e){
+			var that=this;
+			var length=parseInt(http.getResponseHeader("Content-Length"));
+			setTimeout(function(){
+				cb(0,length);
+			},0);
+    }
+    http.send();
 }
+
+
 var close=function(handle) {}
 var fstatSync=function(handle) {
 	throw "not implement yet";
@@ -37,6 +37,13 @@ var _openLocal=function(file,cb) {
 	handle.file=file;
 	cb(handle);
 }
+var _openXHR=function(file,cb) {
+	var handle={};
+	handle.url=file;
+	handle.fn=file.substr(file.lastIndexOf("/")+1);
+	cb(handle);
+}
+
 var _open=function(fn_url,cb) {
 		var handle={};
 		if (fn_url.indexOf("filesystem:")==0){
@@ -53,6 +60,11 @@ var _open=function(fn_url,cb) {
 var open=function(fn_url,cb) {
 	if (typeof File !=="undefined" && fn_url.constructor ===File) {
 		_openLocal.call(this,fn_url,cb);
+		return;
+	}
+
+	if (fn_url.indexOf("http")>-1){//
+		_openXHR.call(this,fn_url,cb);
 		return;
 	}
 
@@ -109,7 +121,8 @@ var init=function(quota,cb,context) {
 	);
 }
 
-
+var read=require("./xhr_read").read;
+var xhr_read=require("./xhr_read").xhr_read;
 var API={
 	read:read
 	,readdir:readdir
@@ -118,5 +131,7 @@ var API={
 	,fstatSync:fstatSync
 	,fstat:fstat
 	,getFileSize:getFileSize
+	,xhr_read
+	,xhr_getFileSize:xhr_getFileSize
 }
 module.exports=API;

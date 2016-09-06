@@ -10,7 +10,7 @@ try {
 var signature_size=1;
 var verbose=0, readLog=function(){};
 var _readLog=function(readtype,bytes) {
-	console.log(readtype,bytes,"bytes");
+	console.log(readtype,bytes);
 }
 if (verbose) readLog=_readLog;
 
@@ -40,9 +40,10 @@ var Open=function(path,opts,cb) {
 	var readSignature=function(pos,cb) {
 		var buf=new Buffer(signature_size);
 		var that=this;
-		fs.read(this.handle,buf,0,signature_size,pos,function(err,len,buffer){
+		this.read(this.handle,buf,0,signature_size,pos,function(err,len,buffer){
 			if (html5fs) var signature=String.fromCharCode((new Uint8Array(buffer))[0])
 			else var signature=buffer.toString('utf8',0,signature_size);
+			readLog("signature",signature.charCodeAt(0));
 			cb.apply(that,[signature]);
 		});
 	}
@@ -94,7 +95,7 @@ var Open=function(path,opts,cb) {
 		encoding=encoding||'utf8';
 		var buffer=new Buffer(blocksize);
 		var that=this;
-		fs.read(this.handle,buffer,0,blocksize,pos,function(err,len,buffer){
+		this.read(this.handle,buffer,0,blocksize,pos,function(err,len,buffer){
 			readLog("string",len);
 			if (html5fs) {
 				if (encoding=='utf8') {
@@ -146,7 +147,7 @@ var Open=function(path,opts,cb) {
 		var buffer=new Buffer(blocksize);
 
 		//if (blocksize>1000000) console.time("readstringarray");
-		fs.read(this.handle,buffer,0,blocksize,pos,function(err,len,buffer){
+		this.read(this.handle,buffer,0,blocksize,pos,function(err,len,buffer){
 			if (html5fs) {
 				readLog("stringArray",buffer.byteLength);
 
@@ -166,11 +167,11 @@ var Open=function(path,opts,cb) {
 	var readUI32=function(pos,cb) {
 		var buffer=new Buffer(4);
 		var that=this;
-		fs.read(this.handle,buffer,0,4,pos,function(err,len,buffer){
-			readLog("ui32",len);
+		this.read(this.handle,buffer,0,4,pos,function(err,len,buffer){			
 			if (html5fs){
 				//v=(new Uint32Array(buffer))[0];
 				var v=new DataView(buffer).getUint32(0, false)
+				readLog("ui32",v);
 				cb(v);
 			}
 			else cb.apply(that,[buffer.readInt32BE(0)]);	
@@ -180,10 +181,11 @@ var Open=function(path,opts,cb) {
 	var readI32=function(pos,cb) {
 		var buffer=new Buffer(4);
 		var that=this;
-		fs.read(this.handle,buffer,0,4,pos,function(err,len,buffer){
-			readLog("i32",len);
+		this.read(this.handle,buffer,0,4,pos,function(err,len,buffer){
+			
 			if (html5fs){
 				var v=new DataView(buffer).getInt32(0, false)
+				readLog("i32",v);
 				cb(v);
 			}
 			else  	cb.apply(that,[buffer.readInt32BE(0)]);	
@@ -193,9 +195,13 @@ var Open=function(path,opts,cb) {
 		var buffer=new Buffer(1);
 		var that=this;
 
-		fs.read(this.handle,buffer,0,1,pos,function(err,len,buffer){
-			readLog("ui8",len);
-			if (html5fs)cb( (new Uint8Array(buffer))[0]) ;
+		this.read(this.handle,buffer,0,1,pos,function(err,len,buffer){
+			
+			if (html5fs){
+				var v=(new Uint8Array(buffer))[0];
+				readLog("ui8",v);
+				cb(v) ;
+			}
 			else  			cb.apply(that,[buffer.readUInt8(0)]);	
 			
 		});
@@ -203,8 +209,8 @@ var Open=function(path,opts,cb) {
 	var readBuf=function(pos,blocksize,cb) {
 		var that=this;
 		var buf=new Buffer(blocksize);
-		fs.read(this.handle,buf,0,blocksize,pos,function(err,len,buffer){
-			readLog("buf",len);
+		this.read(this.handle,buf,0,blocksize,pos,function(err,len,buffer){
+			readLog("buf pos "+pos+' len '+len+' blocksize '+blocksize);
 			var buff=new Uint8Array(buffer)
 			cb.apply(that,[buff]);
 		});
@@ -226,7 +232,7 @@ var Open=function(path,opts,cb) {
 			func='getUint32';//Uint32Array;
 		} else throw 'unsupported integer size';
 
-		fs.read(this.handle,null,0,unitsize*count,pos,function(err,len,buffer){
+		this.read(this.handle,null,0,unitsize*count,pos,function(err,len,buffer){
 			readLog("fix array",len);
 			var out=[];
 			if (unitsize==1) {
@@ -263,7 +269,7 @@ var Open=function(path,opts,cb) {
 		} else throw 'unsupported integer size';
 		//console.log('itemcount',itemcount,'buffer',buffer);
 
-		fs.read(this.handle,items,0,unitsize*count,pos,function(err,len,buffer){
+		this.read(this.handle,items,0,unitsize*count,pos,function(err,len,buffer){
 			readLog("fix array",len);
 			var out=[];
 			for (var i = 0; i < items.length / unitsize; i++) {
@@ -290,6 +296,7 @@ var Open=function(path,opts,cb) {
 		this.readStringArray=readStringArray;
 		this.signature_size=signature_size;
 		this.free=free;
+		this.read=fs.read;
 
 		if (html5fs) {
 			var fn=path;
@@ -308,6 +315,12 @@ var Open=function(path,opts,cb) {
 					if (cb) setTimeout(cb.bind(that),0);
 					});
 				});				
+			} else if (this.handle.url) {//use XHR
+				fs.xhr_getFileSize(this.handle.url,function(err,size){
+					that.size=size;
+					that.read=fs.xhr_read;
+					if (cb) setTimeout(cb.bind(that),0);
+				})
 			}
 		} else {
 			var stat=fs.fstatSync(this.handle);
@@ -318,7 +331,14 @@ var Open=function(path,opts,cb) {
 	}
 
 	var that=this;
-	if (html5fs && opts.webStorage) {
+	if (html5fs) {
+		if (opts.webStorage){
+			//local storage
+		} else if (window && window.location.protocol.indexOf("http")>-1) {
+			var slash=window.location.href.lastIndexOf("/");
+			var approot=window.location.href.substr(0,slash+1);
+			path=approot+path;
+		}
 		fs.open(path,function(h){
 			if (!h) {
 				cb("file not found:"+path);	
@@ -335,7 +355,7 @@ var Open=function(path,opts,cb) {
 			this.handle=fs.openSync(path,'r');//,function(err,handle){
 			this.opened=true;
 			setupapi.call(this);
-		} else {
+	  } else  {
 			cb("file not found:"+path);	
 			return null;
 		}
