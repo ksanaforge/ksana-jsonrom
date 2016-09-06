@@ -1,5 +1,5 @@
 /*reduce xhr call by using cache chunk
-each chunk is 256K by default.
+each chunk is 32K by default.
 */
 
 var Caches={ } //url: chunks
@@ -39,6 +39,7 @@ var getCachedBuffer=function(cache,offset,length){
 			b=new Uint8Array(cache[endchunk].slice(0,end));
 			buffer.set(b,now);
 		} else {
+			//normally a read will not cross many chunk
 			b=new Uint8Array(cache[i]);
 			buffer.set(b,now);;
 			now+=cache[i].byteLength;
