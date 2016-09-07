@@ -337,7 +337,10 @@ var Open=function(path,opts,cb) {
 		} else if (window && window.location.protocol.indexOf("http")>-1) {
 			var slash=window.location.href.lastIndexOf("/");
 			var approot=window.location.href.substr(0,slash+1);
-			path=approot+path;
+			if (path.indexOf("/")>-1){
+				approot=window.location.origin+"/";
+			}
+			path=approot+path;	
 		}
 		fs.open(path,function(h){
 			if (!h) {

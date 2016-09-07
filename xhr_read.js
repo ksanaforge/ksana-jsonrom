@@ -3,7 +3,7 @@ each chunk is 32K by default.
 */
 
 var Caches={ } //url: chunks
-var chunksize=1024*32;
+var chunksize=1024*64;
 
 var inCache=function(cache,startchunk,endchunk){
 	for (var i=startchunk;i<=endchunk;i++) {
