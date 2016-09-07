@@ -57,26 +57,21 @@ var xhr_read=function(handle,nop1,nop2,length,position,cb){
 	var endchunk=Math.floor((position+length)/chunksize);
 
 	if (inCache(cache,startchunk,endchunk)){
-		setTimeout(function(){
 			var b=getCachedBuffer(cache,position,length);
 			cb(0,b.byteLength,b);
-		},0);
 		return;
 	};
 
 //TODO , optimize: not not read data already in cache
 	read(handle,null,0,(endchunk-startchunk+1)*chunksize,startchunk*chunksize,
-
-		function(err,bytes,buffer){
+	function(err,bytes,buffer){
 		for (var i=0;i<=endchunk-startchunk;i++) {
 			var end=(i+1)*chunksize;
 			if (end>=buffer.byteLength) end=buffer.byteLength;
 			cache[i+startchunk]=buffer.slice(i*chunksize,end);
 		}
-		setTimeout(function(){
-			var b=getCachedBuffer(cache,position,length);
-			cb(0,b.byteLength,b);
-		},0);
+		var b=getCachedBuffer(cache,position,length);
+		cb(0,b.byteLength,b);
 	});
 }
 
