@@ -317,9 +317,13 @@ var Open=function(path,opts,cb) {
 				});				
 			} else if (this.handle.url) {//use XHR
 				fs.xhr_getFileSize(this.handle.url,function(err,size){
-					that.size=size;
-					that.read=fs.xhr_read;
-					if (cb) setTimeout(cb.bind(that),0);
+					if (err) {
+						cb&&cb.call(that,"cannot open file");
+					} else {
+						that.size=size;
+						that.read=fs.xhr_read;
+						cb&& setTimeout(cb.bind(that),0);
+					}
 				})
 			}
 		} else {

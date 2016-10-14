@@ -10,16 +10,19 @@ var getFileSize=function(fn,cb) {
 	reader.readAsDataURL(fn);
 }
 var xhr_getFileSize=function(url,cb){
-    var http = new XMLHttpRequest();
-    http.open('HEAD', url+"?"+(new Date().getTime()) ,true);
-    http.onload=function(e){
-			var that=this;
-			var length=parseInt(http.getResponseHeader("Content-Length"));
-			setTimeout(function(){
+  var http = new XMLHttpRequest();
+  http.open('HEAD', url+"?"+(new Date().getTime()) ,true);
+  http.onload=function(e){
+		var length=parseInt(http.getResponseHeader("Content-Length"));
+		setTimeout(function(){
+			if (this.status>200) {
+	 			cb(1,"invalid url");
+			} else {
 				cb(0,length);
-			},0);
-    }
-    http.send();
+			}
+		}.bind(this),0);
+  }
+  http.send();
 }
 
 
