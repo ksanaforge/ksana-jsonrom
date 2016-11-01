@@ -369,9 +369,21 @@ var Create=function(path,opts,cb) {
 			cb=opts;
 			opts={};
 		}
+		opts=opts||{};
 		var context=context||this;
 		var that=this;
-		if (typeof cb!='function') return getSync(path);
+
+		//if (typeof cb!='function') return getSync(path);
+		const cached=getSync(path);
+		if ((cached!==null && typeof cached!=="undefined") || typeof cb!='function' ) {
+			//check if cached is completed
+			if (!(typeof cb=='function' && opts.recursive && typeof cached=="string" && cached[0]==strsep)) {
+				//not calling cb if syncable 
+				!opts.syncable&&cb&&cb.call(context,cached);
+				//sync read
+				return cached;
+			}
+		}
 
 		reset.apply(this,[function(){
 			var o=CACHE;
