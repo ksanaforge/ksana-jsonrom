@@ -1,6 +1,6 @@
 {
   "name": "ksana-jsonrom",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "description": "romable json file format",
   "scripts": {
     "test": "node test/test.js"
