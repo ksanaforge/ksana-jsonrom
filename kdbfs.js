@@ -20,15 +20,22 @@ var unpack_int = function (ar, count , reset) {
   //var r=new Uint32Array(count);
   var i = 0, v = 0,n=0;
   do {
-	var shift = 0;
-	do {
-	  v += ((ar[i] & 0x7F) << shift);
-	  shift += 7;	  
-	} while (ar[++i] & 0x80);
-	r.push(v);
+	var mul=1; //var shift = 0;
+
+		do {
+		  //v += ((ar[i] & 0x7F) << shift);
+		  //shift += 7;	  
+		//} while (ar[++i] & 0x80);
+
+			v  = v + (ar[i] % 0x80) * mul;
+			mul = mul * 128;
+		} while (ar[++i] % 0x100 >= 0x80);
+		r.push(v);
+
+
 	//r[n++]=v;
-	if (reset) v=0;
-	count--;
+		if (reset) v=0;
+		count--;
   } while (i<ar.length && count);
 
   //var rr=r.subarray(0,n);
