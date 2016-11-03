@@ -376,8 +376,8 @@ var Create=function(path,opts,cb) {
 		//if (typeof cb!='function') return getSync(path);
 		const cached=getSync(path);
 		if ((cached!==null && typeof cached!=="undefined") || typeof cb!='function' ) {
-			//check if cached is completed
-			if (!(typeof cb=='function' && opts.recursive && typeof cached=="string" && cached[0]==strsep)) {
+			if ((typeof cached=="string" && cached[0]!==strsep)
+				||typeof cached!=="string") {
 				//not calling cb if syncable 
 				!opts.syncable&&cb&&cb.call(context,cached);
 				//sync read
