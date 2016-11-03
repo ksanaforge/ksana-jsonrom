@@ -354,6 +354,7 @@ var Create=function(path,opts,cb) {
 		if (!CACHE) return undefined;	
 		var o=CACHE;
 		for (var i=0;i<path.length;i++) {
+			if (typeof o!=="object") return null; //cannot dig in
 			var r=o[path[i]];
 			if (typeof r=="undefined") return null;
 			o=r;
