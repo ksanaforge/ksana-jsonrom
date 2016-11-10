@@ -64,9 +64,6 @@ var open=function(fn_url,cb) {
 		_open.apply(this,[fn_url,cb]);
 	},this)} else _open.apply(this,[fn_url,cb]);
 }
-var load=function(filename,mode,cb) {
-	open(filename,mode,cb,true);
-}
 function errorHandler(e) {
 	console.error('Error: ' +e.name+ " "+e.message);
 }
