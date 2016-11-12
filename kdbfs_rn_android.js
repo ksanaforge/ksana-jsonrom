@@ -4,7 +4,8 @@
 	array and buffer return in string format
 	need JSON.parse
 */
-var kfs=require("react-native").NativeModules.KsanaFileSystem;
+const rn="react-native"
+var kfs=require(rn).NativeModules.KsanaFileSystem;
 
 var verbose=0;
 

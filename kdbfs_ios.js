@@ -2,7 +2,8 @@
   JSContext can return all Javascript types.
 */
 'use strict';
-var kfs = require('react-native').NativeModules.KsanaFileSystem;
+const rn="react-native"
+var kfs=require(rn).NativeModules.KsanaFileSystem;
 var verbose=0,async=!!kfs.async;
 
 var readSignature=function(pos,cb) {

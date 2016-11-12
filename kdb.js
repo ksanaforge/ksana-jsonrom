@@ -15,7 +15,8 @@ var Kfs=null;
 
 if (typeof ksanagap=="undefined") {
 	try {
-		var react_native=require("react-native");
+		const rn="react-native"
+		var react_native=require(rn);
 		var OS=react_native.Platform.OS;
 		if (OS=='android') {
 			Kfs=require("./kdbfs_rn_android");
