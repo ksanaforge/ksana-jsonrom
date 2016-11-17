@@ -1,12 +1,21 @@
 /* node.js and html5 file system abstraction layer*/
-try {
-	var fs=require("fs");
-	var Buffer=require("buffer").Buffer;
-} catch (e) {
-	var fs=require('./html5read');
-	var Buffer=function(){ return ""};
-	var html5fs=true; 	
+var fs,Buffer,html5fs;
+const html5mode=function(){
+	fs=require('./html5read');
+	Buffer=function(){ return ""};
+	html5fs=true; 	
 }
+try {
+	fs=require("fs");
+	Buffer=require("buffer").Buffer;
+} catch (e) {
+	html5mode();
+}
+
+if (!fs.existsSync) {
+	html5mode();
+}
+
 var signature_size=1;
 var verbose=0, readLog=function(){};
 var _readLog=function(readtype,bytes) {
@@ -329,6 +338,7 @@ var Open=function(path,opts,cb) {
 					} else {
 						that.size=size;
 						that.read=fs.xhr_read;
+						that.handle.filesize=size;//for xhr_read
 						cb&& setTimeout(cb.bind(that),0);
 					}
 				})

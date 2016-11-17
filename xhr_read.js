@@ -63,6 +63,7 @@ var xhr_read=function(handle,nop1,nop2,length,position,cb){
 	};
 
 //TODO , optimize: not not read data already in cache
+
 	read(handle,null,0,(endchunk-startchunk+1)*chunksize,startchunk*chunksize,
 	function(err,bytes,buffer){
 		for (var i=0;i<=endchunk-startchunk;i++) {
@@ -79,6 +80,7 @@ var read=function(handle,buffer,offset,length,position,cb) {//buffer and offset 
 	var xhr = new XMLHttpRequest();
 	xhr.open('GET', handle.url+"?"+(new Date().getTime()), true);
 	var range=[position,length+position-1];
+	if (range[1]+1>handle.filesize) range[1]=handle.filesize-1;
 	xhr.setRequestHeader('Range', 'bytes='+range[0]+'-'+range[1]);
 	xhr.responseType = 'arraybuffer';
 	xhr.onload = function(e) {
