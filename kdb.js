@@ -458,7 +458,7 @@ var Create=function(path,opts,cb) {
 					} else{
 						var key=path[path.length-1];
 						o[key]=data; KEY[pathnow]=opts.keys;
-						cb.apply(context,[data]);
+						cb && cb.apply(context,[data]);
 					}
 				});
 				taskqueue.shift()({__empty:true});			
