@@ -11,8 +11,11 @@ try {
 } catch (e) {
 	html5mode();
 }
-
-if (!fs.existsSync) {
+if (typeof window !=="undefined" && window.node_modules && window.node_modules.fs) {
+	fs=window.node_modules.fs;
+	Buffer=window.node_modules.buffer.Buffer;
+	console.log("fs by node webkit")
+} else if (!fs.existsSync) {
 	html5mode();
 }
 
@@ -54,7 +57,8 @@ var Open=function(path,opts,cb) {
 	opts=opts||{};
 
 	var readSignature=function(pos,cb) {
-		var buf=new Buffer(signature_size);
+		var buf=(Buffer.alloc)?Buffer.alloc(signature_size):new Buffer(signature_size);
+		
 		var that=this;
 		this.read(this.handle,buf,0,signature_size,pos,function(err,len,buffer){
 			if (html5fs) var signature=String.fromCharCode((new Uint8Array(buffer))[0])
