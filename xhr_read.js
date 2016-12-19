@@ -92,4 +92,4 @@ var read=function(handle,buffer,offset,length,position,cb) {//buffer and offset 
 	xhr.send();	
 }
 
-module.exports={read,xhr_read};
+module.exports={read:read,xhr_read:xhr_read};

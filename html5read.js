@@ -134,7 +134,7 @@ var API={
 	,fstatSync:fstatSync
 	,fstat:fstat
 	,getFileSize:getFileSize
-	,xhr_read
+	,xhr_read:xhr_read
 	,xhr_getFileSize:xhr_getFileSize
 }
 module.exports=API;
