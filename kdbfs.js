@@ -108,7 +108,7 @@ var Open=function(path,opts,cb) {
 			var decoder=new TextDecoder("utf-16le");
 			return decoder.decode(buf)
 		} else {
-			return String.fromCharCode.apply(null, new Uint16Array(buffer));
+			return String.fromCharCode.apply(null, new Uint16Array(buf));
 		}
 	}
 	var readString= function(pos,blocksize,encoding,cb) {
